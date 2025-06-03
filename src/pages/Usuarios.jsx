@@ -31,7 +31,7 @@ function Usuarios() {
       setError(null);
       
       const response = await fetch(
-        `http://localhost:3000/api/users?page=${currentPage}&limit=${usersPerPage}&search=${searchTerm}`,
+        `https://backendref.onrender.com/api/users?page=${currentPage}&limit=${usersPerPage}&search=${searchTerm}`,
         {
           method: 'GET',
           headers: {
@@ -113,7 +113,7 @@ function Usuarios() {
   const handleDelete = async (userId) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
       try {
-        const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+        const response = await fetch(`https://backendref.onrender.com/api/users/${userId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ function Usuarios() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${editingUser._id}`, {
+      const response = await fetch(`https://backendref.onrender.com/api/users/${editingUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -209,7 +209,7 @@ function Usuarios() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3000/api/register', {
+      const response = await fetch('https://backendref.onrender.com/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

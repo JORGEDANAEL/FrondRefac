@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import './tienda.css';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://backendref.onrender.com/api';
 
 function Tienda() {
   const [refacciones, setRefacciones] = useState([]);

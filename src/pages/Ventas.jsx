@@ -69,7 +69,7 @@ function Ventas() {
 
     try {
       // Restaurar el stock en la base de datos
-      const response = await fetch(`http://localhost:3000/api/refacciones/${id}`, {
+      const response = await fetch(`https://backendref.onrender.com/api/refacciones/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

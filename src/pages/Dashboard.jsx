@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './Dashboard.css'
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://backendref.onrender.com/api';
 
 function Dashboard() {
   const [stats, setStats] = useState({
