@@ -95,12 +95,65 @@ function Ventas() {
     }
   };
 
+
+  const imprimirTicket = () => {
+    const ventanaImpresion = window.open('', '_blank');
+    const fecha = new Date().toLocaleString();
+    
+    const contenidoTicket = `
+      <html>
+        <head>
+          <title>Ticket de Venta</title>
+          <style>
+            body { font-family: 'Courier New', monospace; }
+            .ticket { width: 300px; margin: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .item { margin: 5px 0; }
+            .total { margin-top: 20px; font-weight: bold; }
+            .footer { margin-top: 20px; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <div class="ticket">
+            <div class="header">
+              <h2>Ticket de Venta</h2>
+              <p>Fecha: ${fecha}</p>
+            </div>
+            <div class="items">
+              ${carrito.map(item => `
+                <div class="item">
+                  ${item.nombre} x ${item.cantidad}
+                  <br>
+                  $${(item.precio * item.cantidad).toFixed(2)}
+                </div>
+              `).join('')}
+            </div>
+            <div class="total">
+              Total: $${total.toFixed(2)}
+            </div>
+            <div class="footer">
+              ¡Gracias por su compra!
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    ventanaImpresion.document.write(contenidoTicket);
+    ventanaImpresion.document.close();
+    ventanaImpresion.print();
+    ventanaImpresion.close();
+  };
+
   const procesarVenta = async () => {
     try {
       if (carrito.length === 0) {
         toast.error('El carrito está vacío');
         return;
       }
+         // Imprimir el ticket
+         imprimirTicket();
+
 
       // Aquí iría la lógica para procesar la venta con el backend
       // Por ahora solo limpiaremos el carrito
