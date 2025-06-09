@@ -31,6 +31,15 @@ function Stocks() {
   });
   const [refaccionEditando, setRefaccionEditando] = useState(null);
   const [modalRefaccion, setModalRefaccion] = useState(false);
+  const [categorias, setCategorias] = useState([]);
+  const [mostrarInputCategoria, setMostrarInputCategoria] = useState(false);
+  const [nuevaCategoria, setNuevaCategoria] = useState('');
+
+  // Obtener categorías únicas de las refacciones existentes
+  useEffect(() => {
+    const categoriasUnicas = [...new Set(refacciones.map(ref => ref.categoria))].filter(Boolean);
+    setCategorias(categoriasUnicas);
+  }, [refacciones]);
 
   // Filtrar refacciones basado en el término de búsqueda
   const refaccionesFiltradas = refacciones.filter(refaccion => {
@@ -69,6 +78,26 @@ function Stocks() {
 
     cargarRefacciones();
   }, [pagination.currentPage, searchTerm]);
+
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      try {
+        const response = await fetch(`${API_URL}/categorias`);
+        if (!response.ok) {
+          throw new Error('Error al cargar las categorías');
+        }
+        const data = await response.json();
+        console.log('Categorías cargadas:', data); // Para debug
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error:', error);
+        toast.error('Error al cargar las categorías');
+      }
+    };
+
+    cargarCategorias();
+  }, []);
 
   const handleEditar = (refaccion) => {
     setRefaccionEditando(refaccion);
@@ -115,6 +144,15 @@ function Stocks() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
+    if (name === 'categoria' && value === 'nueva') {
+      setMostrarInputCategoria(true);
+      setNuevaRefaccion(prev => ({
+        ...prev,
+        categoria: ''
+      }));
+      return;
+    }
+    
     // Validaciones específicas por campo
     if (name === 'precio' && parseFloat(value) < 0) {
       toast.error('El precio no puede ser negativo');
@@ -129,6 +167,15 @@ function Stocks() {
     setNuevaRefaccion(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleNuevaCategoria = (e) => {
+    const value = e.target.value;
+    setNuevaCategoria(value);
+    setNuevaRefaccion(prev => ({
+      ...prev,
+      categoria: value
     }));
   };
 
@@ -174,7 +221,7 @@ function Stocks() {
           )
         );
         toast.success('Refacción actualizada exitosamente');
-        setRefaccionEditando(null);
+        cerrarModalRefaccion();
       } else {
         // Agregar nueva refacción
         const response = await fetch(`${API_URL}/refacciones`, {
@@ -191,24 +238,18 @@ function Stocks() {
         });
 
         if (!response.ok) {
-          throw new Error('Error al crear la refacción');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error al crear la refacción');
         }
 
         const data = await response.json();
         setRefacciones(prev => [...prev, data]);
         toast.success('Refacción agregada exitosamente');
+        cerrarModalRefaccion();
       }
-
-      // Limpiar formulario
-      setNuevaRefaccion({
-        nombre: '',
-        precio: '',
-        stock: '',
-        categoria: ''
-      });
     } catch (error) {
       console.error('Error al guardar refacción:', error);
-      toast.error('Error al guardar la refacción');
+      toast.error(error.message || 'Error al guardar la refacción');
     }
   };
 
@@ -352,6 +393,8 @@ function Stocks() {
       stock: '',
       categoria: ''
     });
+    setNuevaCategoria('');
+    setMostrarInputCategoria(false);
   };
 
   const handlePageChange = (newPage) => {
@@ -642,13 +685,48 @@ function Stocks() {
               </div>
               <div className="form-group">
                 <label>Categoría:</label>
-                <input
-                  type="text"
-                  name="categoria"
-                  value={nuevaRefaccion.categoria}
-                  onChange={handleInputChange}
-                  required
-                />
+                {!mostrarInputCategoria ? (
+                  <select
+                    name="categoria"
+                    value={nuevaRefaccion.categoria}
+                    onChange={handleInputChange}
+                    required
+                    className="border rounded px-3 py-2"
+                  >
+                    <option value="">Seleccione una categoría</option>
+                    {categorias.map((categoria, index) => (
+                      <option key={index} value={categoria}>
+                        {categoria}
+                      </option>
+                    ))}
+                    <option value="nueva">+ Agregar nueva categoría</option>
+                  </select>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={nuevaCategoria}
+                      onChange={handleNuevaCategoria}
+                      placeholder="Escriba la nueva categoría"
+                      required
+                      className="border rounded px-3 py-2 flex-grow"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMostrarInputCategoria(false);
+                        setNuevaCategoria('');
+                        setNuevaRefaccion(prev => ({
+                          ...prev,
+                          categoria: ''
+                        }));
+                      }}
+                      className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="modal-buttons">
                 <button type="submit" className="btn-confirmar">
