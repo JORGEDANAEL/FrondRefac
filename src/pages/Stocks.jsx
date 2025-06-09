@@ -153,7 +153,20 @@ function Stocks() {
       return;
     }
 
+    // Validar que el nombre no esté vacío
+    if (!nuevaRefaccion.nombre.trim()) {
+      toast.error('El nombre es requerido');
+      return;
+    }
+
     try {
+      const refaccionData = {
+        nombre: nuevaRefaccion.nombre.trim(),
+        precio: parseFloat(nuevaRefaccion.precio),
+        stock: parseInt(nuevaRefaccion.stock),
+        categoria: nuevaRefaccion.categoria.trim() || 'Sin categoría'
+      };
+
       if (refaccionEditando) {
         // Actualizar refacción existente
         const response = await fetch(`${API_URL}/refacciones/${refaccionEditando._id}`, {
@@ -161,12 +174,7 @@ function Stocks() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            nombre: nuevaRefaccion.nombre,
-            precio: parseFloat(nuevaRefaccion.precio),
-            stock: parseInt(nuevaRefaccion.stock),
-            categoria: nuevaRefaccion.categoria
-          })
+          body: JSON.stringify(refaccionData)
         });
 
         if (!response.ok) {
@@ -182,6 +190,7 @@ function Stocks() {
         );
         toast.success('Refacción actualizada exitosamente');
         setRefaccionEditando(null);
+        setModalRefaccion(false);
       } else {
         // Agregar nueva refacción
         const response = await fetch(`${API_URL}/refacciones`, {
@@ -189,21 +198,18 @@ function Stocks() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            nombre: nuevaRefaccion.nombre,
-            precio: parseFloat(nuevaRefaccion.precio),
-            stock: parseInt(nuevaRefaccion.stock),
-            categoria: nuevaRefaccion.categoria
-          })
+          body: JSON.stringify(refaccionData)
         });
 
         if (!response.ok) {
-          throw new Error('Error al crear la refacción');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error al crear la refacción');
         }
 
         const data = await response.json();
         setRefacciones(prev => [...prev, data]);
         toast.success('Refacción agregada exitosamente');
+        setModalRefaccion(false);
       }
 
       // Limpiar formulario
@@ -215,7 +221,7 @@ function Stocks() {
       });
     } catch (error) {
       console.error('Error al guardar refacción:', error);
-      toast.error('Error al guardar la refacción');
+      toast.error(error.message || 'Error al guardar la refacción');
     }
   };
 
@@ -648,13 +654,12 @@ function Stocks() {
                 />
               </div>
               <div className="form-group">
-                <label>Categoría:</label>
+                <label>Categoría (opcional):</label>
                 <div className="categoria-input-container">
                   <select
                     name="categoria"
                     value={nuevaRefaccion.categoria}
                     onChange={handleInputChange}
-                    required
                     className="categoria-select"
                   >
                     <option value="">Seleccione una categoría</option>
