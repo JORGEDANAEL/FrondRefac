@@ -5,7 +5,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://backendref.onrender.com/api';
 
 function Stocks() {
   const [refacciones, setRefacciones] = useState([]);
